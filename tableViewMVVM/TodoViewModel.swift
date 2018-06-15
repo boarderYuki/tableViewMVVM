@@ -6,6 +6,36 @@
 //  Copyright © 2018년 yuki. All rights reserved.
 //
 
+protocol TodoMenuItemViewPresentable {
+    var title: String? {get}
+    var backColor: String? {get}
+}
+
+protocol TodoMenuItemViewDelegate {
+    func onMenuItemSelected() -> ()
+}
+
+class TodoMenuItemViewModel: TodoMenuItemViewPresentable, TodoMenuItemViewDelegate {
+    var title: String?
+    var backColor: String?
+    
+    func onMenuItemSelected() {
+        
+    }
+}
+
+class RemoveMenuItemViewModel: TodoMenuItemViewModel {
+    override func onMenuItemSelected() {
+        
+    }
+}
+
+class DoneMenuItemViewModel: TodoMenuItemViewModel {
+    override func onMenuItemSelected() {
+        
+    }
+}
+
 protocol TodoItemViewDelegate {
     func onItemSelected() -> (Void)
 }
@@ -13,15 +43,29 @@ protocol TodoItemViewDelegate {
 protocol TodoItemPresentable {
     var id: String? { get }
     var textValue: String? { get }
+    var menuItems: [TodoMenuItemViewPresentable]? {get}
 }
 
 class TodoItemViewModel: TodoItemPresentable {
+    
     var id: String? = "0"
     var textValue: String?
+    var menuItems: [TodoMenuItemViewPresentable]? = []
     
     init(id: String, textValue: String) {
         self.id = id
         self.textValue = textValue
+        
+        let removeMenuItem = RemoveMenuItemViewModel()
+        removeMenuItem.title = "Remove"
+        removeMenuItem.backColor = "ff0000"
+        
+        let doneMenuItem = DoneMenuItemViewModel()
+        doneMenuItem.title = "Done"
+        doneMenuItem.backColor = "008000"
+        
+        menuItems?.append(contentsOf: [removeMenuItem, doneMenuItem])
+        
     }
 }
 
