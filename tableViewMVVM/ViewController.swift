@@ -106,16 +106,18 @@ extension ViewController: UITableViewDelegate {
         
         var menuActions: [UIContextualAction] = []
         
-        _ = itemViewModel?.menuItems?.map({
-            let menuAction = UIContextualAction(style: .normal, title: $0.title!) { (action, sourceView, success: (Bool) -> (Void)) in
+        _ = itemViewModel?.menuItems?.map({ menuItem in
+            let menuAction = UIContextualAction(style: .normal, title: menuItem.title!) { (action, sourceView, success: (Bool) -> (Void)) in
                 
-                DispatchQueue.global(qos: .background).async {
-                    //self.viewModel?.onDeleteItem(todoId: (itemViewModel?.id)!)
+                if let delegate = menuItem as? TodoMenuItemViewDelegate {
+                    DispatchQueue.global(qos: .background).async {
+                        delegate.onMenuItemSelected()
+                    }
                 }
                 
                 success(true)
             }
-            menuAction.backgroundColor = $0.backColor!.hexColor
+            menuAction.backgroundColor = menuItem.backColor!.hexColor
             menuActions.append(menuAction)
         })
         
