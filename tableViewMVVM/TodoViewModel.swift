@@ -36,6 +36,7 @@ extension TodoItemViewModel: TodoItemViewDelegate {
 
 protocol TodoViewDelegate {
     func onAddTodoItem() -> ()
+    func onDeleteItem(todoId: String) -> ()
 }
 
 protocol TodoViewPresentable {
@@ -61,6 +62,8 @@ class TodoViewModel: TodoViewPresentable {
 }
 
 extension TodoViewModel: TodoViewDelegate {
+    
+    
     func onAddTodoItem() {
         //print("new todo value received \(newTodoItem)")
         
@@ -76,5 +79,13 @@ extension TodoViewModel: TodoViewDelegate {
         self.view?.insertTodoItem()
     }
     
+    func onDeleteItem(todoId: String) {
+        guard let index = self.items.index(where: { $0.id! == todoId }) else {
+            print("인덱스 아이템 없음")
+            return
+        }
+        self.items.remove(at: index)
+        self.view?.removeTodoItem(at: index)
+    }
 }
 

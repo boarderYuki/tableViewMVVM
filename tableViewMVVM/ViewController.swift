@@ -10,6 +10,7 @@ import UIKit
 
 protocol TodoView: class {
     func insertTodoItem() -> ()
+    func removeTodoItem(at index: Int) -> ()
 }
 
 class ViewController: UIViewController {
@@ -38,7 +39,10 @@ class ViewController: UIViewController {
         }
         
         viewModel?.newTodoItem = newTodoValue
-        viewModel?.onAddTodoItem()
+        DispatchQueue.global(qos: .background).async {
+            self.viewModel?.onAddTodoItem()
+        }
+        
     }
     
     
@@ -73,6 +77,23 @@ extension ViewController: UITableViewDelegate {
         let itemViewModel = viewModel?.items[indexPath.row]
         (itemViewModel as? TodoItemViewDelegate)?.onItemSelected()
     }
+    
+    // 스와이프 ios11 부터
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let itemViewModel = viewModel?.items[indexPath.row]
+        let removeAction = UIContextualAction(style: .normal, title: "Remove") { (action, sourceView, success: (Bool) -> (Void)) in
+            
+            DispatchQueue.global(qos: .background).async {
+                self.viewModel?.onDeleteItem(todoId: (itemViewModel?.id)!)
+            }
+            
+            success(true)
+        }
+        
+        removeAction.backgroundColor = .red
+        return UISwipeActionsConfiguration(actions: [removeAction])
+    }
 }
 
 extension ViewController: TodoView {
@@ -84,12 +105,24 @@ extension ViewController: TodoView {
             return
         }
         
-        self.textFieldNewItem.text = viewModel?.newTodoItem!
-        self.tableViewItems.beginUpdates()
-        self.tableViewItems.insertRows(at: [IndexPath(row: items.count-1, section: 0)], with: .automatic)
-        self.tableViewItems.endUpdates()
+        DispatchQueue.main.async(execute: { () -> Void in
+            self.textFieldNewItem.text = self.viewModel?.newTodoItem!
+            self.tableViewItems.beginUpdates()
+            self.tableViewItems.insertRows(at: [IndexPath(row: items.count-1, section: 0)], with: .automatic)
+            self.tableViewItems.endUpdates()
+        })
+        
+        
     }
     
+    func removeTodoItem(at index: Int) {
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            self.tableViewItems.beginUpdates()
+            self.tableViewItems.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            self.tableViewItems.endUpdates()
+        })
+    }
     
 }
 
